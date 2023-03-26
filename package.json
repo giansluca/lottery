@@ -1,0 +1,26 @@
+{
+    "name": "inbox",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "mocha",
+        "compile": "node scripts/compile",
+        "deploy": "node scripts/deploy"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@truffle/hdwallet-provider": "^2.1.9",
+        "dotenv": "^16.0.3",
+        "ganache-cli": "^6.12.2",
+        "mocha": "^10.2.0",
+        "solc": "^0.8.19",
+        "web3": "^1.9.0"
+    },
+    "devDependencies": {
+        "eslint": "^8.36.0",
+        "prettier": "^2.8.7"
+    }
+}
