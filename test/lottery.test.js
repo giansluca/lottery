@@ -1,25 +1,25 @@
-const assert = require("assert").strict;
 const ganache = require("ganache-cli");
-
-const provider = ganache.provider();
 const Web3 = require("web3");
-const web3 = new Web3(provider);
 
 const lotteryContractFile = require("../scripts/compile");
 const bytecode = lotteryContractFile.evm.bytecode.object;
 const abi = lotteryContractFile.abi;
 
+const provider = ganache.provider();
+const web3 = new Web3(provider);
 let accounts;
+let manager;
 let lottery;
 
-beforeEach(async () => {
-    accounts = await web3.eth.getAccounts();
-    lottery = await new web3.eth.Contract(abi).deploy({ data: bytecode }).send({ from: accounts[0], gas: "1000000" });
-});
+describe("Test contract", () => {
+    beforeEach(async () => {
+        accounts = await web3.eth.getAccounts();
+        manager = accounts[0];
+        lottery = await new web3.eth.Contract(abi).deploy({ data: bytecode }).send({ from: manager, gas: "1000000" });
+    });
 
-describe("Lottery", () => {
     it("should deploy a contract", () => {
-        assert.ok(lottery.options.address);
+        expect(lottery.options.address).toBeDefined();
     });
 
     it("should allow multiple accounts to enter", async () => {
@@ -42,24 +42,24 @@ describe("Lottery", () => {
             from: accounts[1],
         });
 
-        assert.strictEqual(accounts[1], players[0]);
-        assert.strictEqual(accounts[2], players[1]);
-        assert.strictEqual(accounts[3], players[2]);
-        assert.strictEqual(3, players.length);
+        expect(accounts[1]).toBe(players[0]);
+        expect(accounts[2]).toBe(players[1]);
+        expect(accounts[3]).toBe(players[2]);
+        expect(players.length).toBe(3);
     });
 
     it("should requires minimum amount of ether to enter", async () => {
         try {
             await lottery.methods.enter().send({
                 from: accounts[1],
-                value: 10,
+                value: web3.utils.toWei("0.0002", "ether"),
             });
         } catch (e) {
-            assert.ok(e);
+            expect(e).toBeDefined();
             return;
         }
 
-        assert.fail("Should not get here!");
+        throw new Error("Should not get here!");
     });
 
     it("should allow access to pickWinner only to manager", async () => {
@@ -73,24 +73,28 @@ describe("Lottery", () => {
                 from: accounts[2],
             });
         } catch (e) {
-            assert.ok(e);
+            expect(e).toBeDefined();
             return;
         }
 
-        assert.fail("Should not get here!");
+        throw new Error("Should not get here!");
     });
 
     it("should send money to the winners and reset the players array", async () => {
         await lottery.methods.enter().send({
-            from: accounts[0],
+            from: manager,
             value: web3.utils.toWei("2", "ether"),
         });
 
-        const initialBalance = await web3.eth.getBalance(accounts[0]);
-        await lottery.methods.pickWinner().send({ from: accounts[0] });
-        const finalBalance = await web3.eth.getBalance(accounts[0]);
-        const difference = finalBalance - initialBalance;
+        const initialBalance = await web3.eth.getBalance(manager);
+        console.log("initial balance:", web3.utils.fromWei(initialBalance, "ether"));
+        await lottery.methods.pickWinner().send({ from: manager });
 
-        assert(difference > web3.utils.toWei("1.8", "ether"));
+        const finalBalance = await web3.eth.getBalance(manager);
+        console.log("final balance:", web3.utils.fromWei(finalBalance, "ether"));
+
+        const difference = Number(finalBalance) - Number(initialBalance);
+
+        expect(difference).toBeGreaterThan(Number(web3.utils.toWei("1.8", "ether")));
     });
 });
