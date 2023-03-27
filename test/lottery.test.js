@@ -82,19 +82,30 @@ describe("Test contract", () => {
 
     it("should send money to the winners and reset the players array", async () => {
         await lottery.methods.enter().send({
-            from: manager,
-            value: web3.utils.toWei("2", "ether"),
+            from: accounts[4],
+            value: web3.utils.toWei("2.5", "ether"),
         });
 
-        const initialBalance = await web3.eth.getBalance(manager);
-        console.log("initial balance:", web3.utils.fromWei(initialBalance, "ether"));
+        await lottery.methods.enter().send({
+            from: accounts[3],
+            value: web3.utils.toWei("0.62", "ether"),
+        });
+
+        const initialBalanceWei = await web3.eth.getBalance(lottery.options.address);
+        const initialBalanceEth = web3.utils.fromWei(initialBalanceWei, "ether");
+        console.log("initial balance Wei:", initialBalanceWei);
+        console.log("initial balance Eth:", initialBalanceEth);
+
         await lottery.methods.pickWinner().send({ from: manager });
 
-        const finalBalance = await web3.eth.getBalance(manager);
-        console.log("final balance:", web3.utils.fromWei(finalBalance, "ether"));
+        const finalBalanceWei = await web3.eth.getBalance(lottery.options.address);
+        const finalBalanceEth = web3.utils.fromWei(finalBalanceWei, "ether");
+        console.log("final balance Wei:", finalBalanceWei);
+        console.log("final balance Eth:", finalBalanceEth);
 
-        const difference = Number(finalBalance) - Number(initialBalance);
-
-        expect(difference).toBeGreaterThan(Number(web3.utils.toWei("1.8", "ether")));
+        expect(Number(initialBalanceWei)).toBe(Number(web3.utils.toWei("3.12", "ether")));
+        expect(Number(initialBalanceEth)).toBe(3.12);
+        expect(Number(finalBalanceWei)).toBe(Number(web3.utils.toWei("0", "ether")));
+        expect(Number(finalBalanceEth)).toBe(0);
     });
 });
