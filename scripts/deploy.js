@@ -3,21 +3,31 @@ const Web3 = require("web3");
 const config = require("./config");
 
 const lotteryContractFile = require("./compile");
-
 const bytecode = lotteryContractFile.evm.bytecode.object;
 const abi = lotteryContractFile.abi;
 
-const provider = new HDWalletProvider({
-    mnemonic: {
-        phrase: config.wallet.phrase,
-    },
-    providerOrUrl: config.wallet.providerUrl,
-});
+let provider;
+let web3;
 
-const web3 = new Web3(provider);
+function init() {
+    provider = new HDWalletProvider({
+        mnemonic: {
+            phrase: config.wallet.phrase,
+        },
+        providerOrUrl: config.wallet.providerUrl,
+    });
+
+    web3 = new Web3(provider);
+}
+
+function stop() {
+    provider.engine.stop();
+}
 
 async function deploy() {
     try {
+        init();
+
         const accounts = await web3.eth.getAccounts();
         const account = accounts.find((account) => account === config.wallet.account);
 
@@ -30,6 +40,8 @@ async function deploy() {
             .send({ from: account, gas: "1000000" });
 
         console.log("Contract deployed", result.options.address);
+
+        stop();
     } catch (e) {
         console.log(e);
     }
@@ -43,5 +55,3 @@ async function deploy() {
         process.exitCode = 1;
     }
 })();
-
-provider.engine.stop();
