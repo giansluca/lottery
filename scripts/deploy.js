@@ -35,11 +35,11 @@ async function deploy() {
 
         console.log("Attempting to deploy from account", account);
 
-        const result = await new web3.eth.Contract(abi)
+        const lottery = await new web3.eth.Contract(abi)
             .deploy({ data: bytecode })
             .send({ from: account, gas: "1000000" });
 
-        console.log("Contract deployed", result.options.address);
+        console.log("Contract deployed", lottery.options.address);
 
         stop();
     } catch (e) {
