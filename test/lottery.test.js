@@ -1,11 +1,12 @@
-const ganache = require("ganache-cli");
+const ganache = require("ganache");
 const Web3 = require("web3");
 
 const lotteryContractFile = require("../scripts/compile");
 const bytecode = lotteryContractFile.evm.bytecode.object;
 const abi = lotteryContractFile.abi;
 
-const provider = ganache.provider();
+const options = { logging: { quiet: true } };
+const provider = ganache.provider(options);
 const web3 = new Web3(provider);
 let accounts;
 let manager;
