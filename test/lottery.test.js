@@ -1,5 +1,5 @@
 const ganache = require("ganache");
-const Web3 = require("web3");
+const { Web3 } = require("web3");
 
 const lotteryContractFile = require("../scripts/compile");
 const bytecode = lotteryContractFile.evm.bytecode.object;

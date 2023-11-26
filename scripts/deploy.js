@@ -1,5 +1,5 @@
 const HDWalletProvider = require("@truffle/hdwallet-provider");
-const Web3 = require("web3");
+const { Web3 } = require("web3");
 const config = require("./config");
 
 const lotteryContractFile = require("./compile");
@@ -12,7 +12,7 @@ let web3;
 function init() {
     provider = new HDWalletProvider({
         mnemonic: {
-            phrase: config.wallet.phrase,
+            phrase: config.wallet.accountSecretPhrase,
         },
         providerOrUrl: config.wallet.providerUrl,
     });
@@ -29,7 +29,7 @@ async function deploy() {
         init();
 
         const accounts = await web3.eth.getAccounts();
-        const account = accounts.find((account) => account === config.wallet.account);
+        const account = accounts.find((account) => account === config.wallet.accountAddress);
 
         if (!account) throw new Error("no account");
 

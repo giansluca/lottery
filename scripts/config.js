@@ -13,9 +13,9 @@ const config = {
         commit: process.env.APP_COMMIT,
     },
     wallet: {
-        phrase: process.env.WALLET_PHRASE,
-        account: process.env.GOERLI_ACCOUNT_2,
         providerUrl: process.env.PROVIDER_URL,
+        accountAddress: process.env.ACCOUNT_ADDRESS,
+        accountSecretPhrase: process.env.ACCOUNT_SECRET_PHRASE,
     },
 };
 
